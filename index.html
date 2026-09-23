@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ur" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saad Akram | Developer & Poet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Press+Start+2P&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #090a0f;
+  --bg2: #121520;
+  --panel: rgba(20, 24, 38, 0.75);
+  --text: #f5f5f5;
+  --muted: #8e9bb0;
+  --accent: #ff2a5f;
+  --accent2: #00f0ff;
+  --gold: #ffd700;
+  --border: rgba(0, 240, 255, 0.2);
+  --glow: 0 0 15px rgba(0, 240, 255, 0.3);
+  box-sizing: border-box;
+}
+
+[data-theme="retro"] {
+  --bg: #1a0933;
+  --bg2: #2b0b54;
+  --panel: rgba(43, 11, 84, 0.8);
+  --text: #ffe6ff;
+  --muted: #b892ff;
+  --accent: #ff007f;
+  --accent2: #00ffff;
+  --gold: #ffea00;
+  --border: rgba(255, 0, 127, 0.3);
+  --glow: 0 0 15px rgba(255, 0, 127, 0.4);
+}
+
+[data-theme="cyber"] {
+  --bg: #050505;
+  --bg2: #0d0d0d;
+  --panel: rgba(15, 15, 15, 0.85);
+  --text: #00ff66;
+  --muted: #008833;
+  --accent: #00ff66;
+  --accent2: #00ffff;
+  --gold: #ffff00;
+  --border: rgba(0, 255, 102, 0.3);
+  --glow: 0 0 15px rgba(0, 255, 102, 0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+
+body {
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  position: relative;
+  transition: background 0.5s ease;
+}
+
+canvas#bgCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* CRT Overlay Effect */
+.crt::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 100;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+/* HUD Overlay Header */
+.hud-bar {
+  position: fixed;
+  top: 15px; left: 15px; right: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  padding: 10px 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: var(--glow);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+
+.hud-stats { display: flex; gap: 20px; }
+.hud-stat span { color: var(--accent2); }
+
+.hud-controls { display: flex; gap: 10px; }
+.hud-icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+.hud-icon-btn:hover { background: var(--accent); color: #fff; }
+
+/* Main Screens */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.95);
+  z-index: 10;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Intro Screen */
+#logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--accent2);
+  margin-bottom: 25px;
+  text-shadow: var(--glow);
+  letter-spacing: 2px;
+}
+
+.arcade-title {
+  font-size: 42px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: linear-gradient(45deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+  text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.btn {
+  border: 2px solid var(--accent);
+  background: rgba(233, 69, 96, 0.1);
+  color: var(--text);
+  padding: 16px 40px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(233, 69, 96, 0.3);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  margin-top: 15px;
+}
+.btn:hover {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 25px var(--accent);
+  transform: translateY(-3px);
+}
+.btn:active { transform: scale(0.95); }
+
+/* About Screen */
+.avatar-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+.avatar {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px; font-weight: 700; color: #0a0a0a;
+  border: 4px solid var(--bg);
+  box-shadow: var(--glow);
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+.avatar:hover { transform: rotate(10deg) scale(1.05); }
+
+.badge {
+  position: absolute;
+  bottom: 0; right: 0;
+  background: var(--gold);
+  color: #000;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+h1.name { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+.role {
+  color: var(--accent2);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.bio {
+  max-width: 480px;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 14px;
+  margin-bottom: 25px;
+  background: var(--panel);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+.skills-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 25px;
+  max-width: 450px;
+}
+.tag {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Game / Interactive Screen */
+.game-box {
+  width: 100%;
+  max-width: 550px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 30px;
+  backdrop-filter: blur(12px);
+  box-shadow: var(--glow);
+  position: relative;
+}
+
+#poem-count {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--accent2);
+  font-size: 10px;
+  margin-bottom: 15px;
+}
+
+.poem-card {
+  min-height: 180px;
+  direction: rtl;
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 22px;
+  line-height: 2.3;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translateY(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.poem-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.poem-date {
+  direction: ltr;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-top: 20px;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.nav-row { display: flex; gap: 20px; justify-content: center; margin-top: 25px; }
+.nav-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-btn:hover:not(:disabled) {
+  background: var(--accent2);
+  color: #000;
+  box-shadow: 0 0 15px var(--accent2);
+  transform: scale(1.1);
+}
+.nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+/* Easter Egg Minigame Container */
+#minigame-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+#gameCanvas {
+  background: #000;
+  border: 2px solid var(--accent2);
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--panel);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 200;
+}
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+</style>
+</head>
+<body class="crt">
+
+<!-- Background Particle Canvas -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- HUD Bar -->
+<div class="hud-bar">
+  <div class="hud-stats">
+    <div class="hud-stat">XP: <span id="xpCount">0</span></div>
+    <div class="hud-stat">POEMS: <span id="poemsRead">0/11</span></div>
+  </div>
+  <div class="hud-controls">
+    <button class="hud-icon-btn" id="themeBtn" title="Toggle Theme">🎨</button>
+    <button class="hud-icon-btn" id="soundBtn" title="Toggle Audio">🔊</button>
+  </div>
+</div>
+
+<!-- Intro Screen -->
+<section class="screen active" id="intro">
+  <div id="logo">POETRY ❤ SAAD AKRAM</div>
+  <h1 class="arcade-title">Interactive Realm</h1>
+  <p style="color: var(--muted); margin-bottom: 30px; font-size: 13px;">Level 1: Discover the Craft</p>
+  <button class="btn" id="introBtn">Press Start</button>
+</section>
+
+<!-- About Screen -->
+<section class="screen" id="about">
+  <div class="avatar-container">
+    <div class="avatar" id="avatarBtn">SA</div>
+    <div class="badge">LVL 12</div>
+  </div>
+  <h1 class="name">Saad Akram</h1>
+  <div class="role">ICS Student &amp; Developer</div>
+  
+  <p class="bio">
+    Web developer &amp; game developer who takes on freelance projects — with AI tools woven into the workflow. Based in Lahore. When the code rests, the poetry starts.
+  </p>
+
+  <div class="skills-tags">
+    <span class="tag">⚡ Web Dev</span>
+    <span class="tag">🎮 Game Dev</span>
+    <span class="tag">🤖 AI Workflows</span>
+    <span class="tag">✍️ Urdu Poetry</span>
+  </div>
+
+  <div style="display: flex; gap: 15px;">
+    <button class="btn" id="poetryBtn">Read Poems</button>
+    <button class="btn" id="minigameBtn" style="border-color: var(--accent2);">Mini Game</button>
+  </div>
+</section>
+
+<!-- Poetry Arcade Screen -->
+<section class="screen" id="poetry">
+  <div class="game-box">
+    <div id="poem-count">POEM 01 / 11</div>
+    <div class="poem-card" id="poemCard"></div>
+    <div class="poem-date" id="poemDate"></div>
+    <div class="nav-row">
+      <button class="nav-btn" id="prevBtn">‹</button>
+      <button class="nav-btn" id="nextBtn">›</button>
+    </div>
+  </div>
+  <button class="hud-icon-btn" id="backToAbout" style="margin-top: 20px;">← Back to Profile</button>
+</section>
+
+<!-- Mini-Game Screen -->
+<section class="screen" id="gameScreen">
+  <div class="game-box" id="minigame-container" style="display:flex;">
+    <div style="font-family:'Press Start 2P'; font-size:12px; color:var(--accent2); margin-bottom:10px;">CATCH THE INSPIRATION</div>
+    <canvas id="gameCanvas" width="320" height="240"></canvas>
+    <p style="color: var(--muted); font-size: 11px; margin-top: 10px;">Use Left / Right arrow keys or tap sides to move!</p>
+    <button class="hud-icon-btn" id="backFromGame" style="margin-top: 15px;">← Exit Game</button>
+  </div>
+</section>
+
+<!-- Achievement Toast -->
+<div class="toast" id="toast">🏆 Achievement Unlocked!</div>
+
+<script>
+// --- Audio Synthesizer (Web Audio API) ---
+class SoundController {
+  constructor() {
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.enabled = true;
+  }
+  playTone(freq, type="sine", duration=0.1) {
+    if (!this.enabled) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + duration);
+    } catch(e) {}
+  }
+  playClick() { this.playTone(600, "square", 0.05); }
+  playScore() { 
+    this.playTone(523.25, "triangle", 0.08);
+    setTimeout(() => this.playTone(659.25, "triangle", 0.08), 80);
+    setTimeout(() => this.playTone(783.99, "triangle", 0.12), 160);
+  }
+  playAchieve() {
+    [440, 554.37, 659.25, 880].forEach((f, i) => {
+      setTimeout(() => this.playTone(f, "sine", 0.15), i * 100);
+    });
+  }
+}
+const sound = new SoundController();
+
+// --- Particle Canvas Background ---
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = (Math.random() - 0.5) * 0.5;
+    this.speedY = (Math.random() - 0.5) * 0.5;
+    this.alpha = Math.random() * 0.5 + 0.2;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+  }
+  draw() {
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent2').trim() || '#00f0ff';
+    ctx.globalAlpha = this.alpha;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// --- State & Poems Data ---
+const poems = [
+  { text:"تیرے در سے لپٹے ہوئے ہم بے زور<br>دیتے ہیں دہائی، ذرا پاس تو آ<br>آ کے ذرا میرا حالِ دل تو سن<br>کچھ اپنا سنا، کچھ میری بھی سن<br><br>کتنی الفت ہے تیرے لیے، یہ تو جان<br>قربان گئے الفت ہے، یہ تو دیکھ<br>کچھ ہمارا پوچھ، کچھ اپنا بتا<br>آ میرے محبوب، ذرا پاس تو آ"},
+  { text:"میں آج بھی اس کے سحر میں اتنا ہی ہوں<br>جتنا اس کے ہونے کے وقت ہوتا تھا<br>کیا پتہ وہ بھی ہماری یاد میں پاگل سا ہو<br>جیسے ہمارے ہونے کے وقت ہوتا تھا<br>اس نے کونسا ہم سے بے وفائی کی تھی<br>یا ہم نے کونسا قطعِ تعلقی کی تھی"},
+  { text:"ان کے عشق میں ہم بدنام ہوئے<br>جان سے جاتی جاتی<br>کاش! وہ اک بار تو ہمیں پہچان جاتی"},
+  { text:"نہ کر شکوہ ارے ناداں، یہی دستورِ الفت ہے<br>کہ جو محبوب ہوتا ہے، ذرا مغرور ہوتا ہے"},
+  { text:"اس کی وہ ظالم آنکھ اور میرا سبب ہے خیالِ ترکِ محبت<br>اے دل آرام سے کہیں سن نہ لے وہ قاتل آنکھیں<br><br>مجھ کو تو معلوم اس کے سارے عیب<br>بس مجھ کو روک کے رکھی ہے وہ گلابی آنکھیں<br><br>دل اس بے وفا سے جدا ہونے نہیں دیتا<br>شاید اس کا سبب ہو وہ غالب آنکھیں"},
+  { text:"جل رہا ہوں شب و روز، قربِ شدید میں<br>مجھے تیری طلب ہے، صرف تیری<br><br>عشقِ حقیقی"},
+  { text:"اس شخص کے کردار پہ عمر واردی ہم نے<br>اس شخص نے میرے کردار کو ہی مار دیا"},
+  { text:"اے دلِ ناداں، تیرا علاج کیا تو ہی بتا<br>اس کو بھلانے کی وجہ تو ہی بتا...<br><br>(to be continued)"},
+  { text:"مشکلِ نیست کہ آسان نشود<br>مرد باید کہ ہراساں نشود"},
+  { text:"نہ بات ہو سکے گی، نہ ملاقات ہو سکے گی<br>نہ دیکھا جائے گا، پھر جیا کیسے جائے گا"},
+  { text:"کسی کو تیری آنکھوں میں رہنے کی جگہ مل گئی<br>تیری مسکراہٹ میں غموں کو چھپانے کی جگہ مل گئی<br>تیری تصویروں کا کانچ جو ٹوٹا میرے ہاتھوں سے ایک دن<br>آئینے میں خود کو دیکھتے رہنے کی سزا مل گئی<br>ان چند پلوں میں جب تو ٹوٹے تارے سے دعا مانگ رہا تھا<br>ایک ملتجی کو تیری عبادت کرنے کی جگہ مل گئی"}
+  { text:"More to come ......."},
+];
+
+let i = 0;
+let xp = 0;
+let readPoems = new Set();
+let unlockedAchievements = new Set();
+
+function addXP(amount) {
+  xp += amount;
+  document.getElementById('xpCount').textContent = xp;
+}
+
+function unlockAchievement(title) {
+  if (unlockedAchievements.has(title)) return;
+  unlockedAchievements.add(title);
+  sound.playAchieve();
+  const toast = document.getElementById('toast');
+  toast.textContent = `🏆 Unlocked: ${title}`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// --- Poem Renderer ---
+const card = document.getElementById('poemCard');
+const dateEl = document.getElementById('poemDate');
+const countEl = document.getElementById('poem-count');
+
+function render() {
+  card.classList.remove('show');
+  sound.playClick();
+  setTimeout(() => {
+    card.innerHTML = poems[i].text;
+    dateEl.textContent = poems[i].date;
+    countEl.textContent = `POEM ${String(i + 1).padStart(2, '0')} / ${poems.length}`;
+    card.classList.add('show');
+    
+    if (!readPoems.has(i)) {
+      readPoems.add(i);
+      addXP(15);
+      document.getElementById('poemsRead').textContent = `${readPoems.size}/${poems.length}`;
+      if (readPoems.size === poems.length) {
+        unlockAchievement("Poetry Connoisseur");
+      }
+    }
+  }, 200);
+
+  document.getElementById('prevBtn').disabled = (i === 0);
+  document.getElementById('nextBtn').disabled = (i === poems.length - 1);
+}
+
+// --- Navigation & UI Events ---
+function switchScreen(fromId, toId) {
+  sound.playClick();
+  document.getElementById(fromId).classList.remove('active');
+  document.getElementById(toId).classList.add('active');
+}
+
+document.getElementById('introBtn').addEventListener('click', () => {
+  switchScreen('intro', 'about');
+  addXP(10);
+  unlockAchievement("First Step");
+});
+
+document.getElementById('poetryBtn').addEventListener('click', () => {
+  switchScreen('about', 'poetry');
+  render();
+});
+
+document.getElementById('backToAbout').addEventListener('click', () => {
+  switchScreen('poetry', 'about');
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (i < poems.length - 1) { i++; render(); }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (i > 0) { i--; render(); }
+});
+
+// Avatar Secret Click
+let avatarClicks = 0;
+document.getElementById('avatarBtn').addEventListener('click', () => {
+  avatarClicks++;
+  sound.playScore();
+  addXP(5);
+  if (avatarClicks === 5) {
+    unlockAchievement("Easter Egg Hunter");
+  }
+});
+
+// Theme Switcher
+const themes = ['dark', 'retro', 'cyber'];
+let currentTheme = 0;
+document.getElementById('themeBtn').addEventListener('click', () => {
+  currentTheme = (currentTheme + 1) % themes.length;
+  document.documentElement.setAttribute('data-theme', themes[currentTheme]);
+  sound.playClick();
+});
+
+// Sound Toggle
+document.getElementById('soundBtn').addEventListener('click', (e) => {
+  sound.enabled = !sound.enabled;
+  e.target.textContent = sound.enabled ? "🔊" : "🔇";
+});
+
+// --- Catching Mini Game ---
+const gCanvas = document.getElementById('gameCanvas');
+const gCtx = gCanvas.getContext('2d');
+let gameLoopId = null;
+let playerX = 140;
+let item = { x: 160, y: 0, speed: 2 };
+let score = 0;
+
+document.getElementById('minigameBtn').addEventListener('click', () => {
+  switchScreen('about', 'gameScreen');
+  initGame();
+});
+
+document.getElementById('backFromGame').addEventListener('click', () => {
+  cancelAnimationFrame(gameLoopId);
+  switchScreen('gameScreen', 'about');
+});
+
+function initGame() {
+  score = 0;
+  playerX = 140;
+  resetItem();
+  runGame();
+}
+
+function resetItem() {
+  item.x = Math.random() * (gCanvas.width - 20) + 10;
+  item.y = 0;
+  item.speed = 2 + Math.random() * 2;
+}
+
+function runGame() {
+  gCtx.fillStyle = '#0a0b10';
+  gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
+
+  // Draw Player Paddle
+  gCtx.fillStyle = '#00f0ff';
+  gCtx.fillRect(playerX, gCanvas.height - 15, 50, 10);
+
+  // Draw Falling Heart/Poem Idea
+  gCtx.fillStyle = '#ff2a5f';
+  gCtx.font = '14px serif';
+  gCtx.fillText('💡', item.x, item.y);
+
+  item.y += item.speed;
+
+  // Collision
+  if (item.y >= gCanvas.height - 20 && item.x >= playerX - 10 && item.x <= playerX + 50) {
+    score++;
+    sound.playScore();
+    addXP(10);
+    resetItem();
+    if (score === 5) unlockAchievement("Idea Catcher");
+  } else if (item.y > gCanvas.height) {
+    resetItem();
+  }
+
+  // Score Text
+  gCtx.fillStyle = '#fff';
+  gCtx.font = '8px "Press Start 2P"';
+  gCtx.fillText(`IDEAS: ${score}`, 10, 20);
+
+  gameLoopId = requestAnimationFrame(runGame);
+}
+
+// Controls for Mini Game
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft' && playerX > 0) playerX -= 20;
+  if (e.key === 'ArrowRight' && playerX < gCanvas.width - 50) playerX += 20;
+});
+
+// Mobile Touch Control for Mini Game
+gCanvas.addEventListener('touchstart', (e) => {
+  const touchX = e.touches[0].clientX - gCanvas.getBoundingClientRect().left;
+  if (touchX < gCanvas.width / 2) {
+    if (playerX > 0) playerX -= 25;
+  } else {
+    if (playerX < gCanvas.width - 50) playerX += 25;
+  }
+});
+</script>
+</body>
+</html>
+
